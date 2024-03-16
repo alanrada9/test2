@@ -1,24 +1,43 @@
-import Adafruit_CharLCD as LCD
+from rpi_lcd import LCD
+import Adafruit_DHT
 import time
 
-LCD_RS = 21
-LCD_EN = 20
-LCD_D4 = 16
-LCD_D5 = 12
-LCD_D6 = 7
-LCD_D7 = 8
-LCD_COLS = 16
-LCD_ROWS = 2
+# Initialize DHT sensor (DHT22)
+DHT_SENSOR = Adafruit_DHT.DHT22
+DHT_PIN = 4
 
-lcd = LCD.Adafruit_CharLCD(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7, LCD_COLS, LCD_ROWS)
+lcd = LCD()
+
+def read_dht_sensor():
+    humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
+    return humidity, temperature
+
+def read_light_status():
+    # Placeholder function to simulate reading LDR
+    # Replace this with your actual LDR reading code
+    return "Light Detected" if True else "No Light"
 
 try:
-    lcd.clear()
-    lcd.message('Hola, LCD!')
-    time.sleep(5)  # Mostrar durante 5 segundos
-    lcd.clear()
+    while True:
+        humidity, temperature = read_dht_sensor()
+        light_status = read_light_status()
+
+        # Display results on the console
+        print(f"Temperature: {temperature:.2f}°C, Humidity: {humidity:.2f}%")
+        print(f"Light Status: {light_status}")
+
+        # Display results on the LCD
+        lcd.text("Temp: {:.1f}C".format(temperature), 1)
+        lcd.text("Humidity: {:.1f}%".format(humidity), 2)
+        lcd.text(light_status, 3)
+        
+        time.sleep(2)  # Wait for 2 seconds before updating readings
+
 except KeyboardInterrupt:
+    print("Exiting...")
+
+finally:
     lcd.clear()
-    lcd.message('Saliendo...')
+    lcd.text("Goodbye!", 1)
     time.sleep(2)
     lcd.clear()
